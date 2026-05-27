@@ -1,6 +1,10 @@
 import { useUIStore } from '@/store/useUIStore'
 import { GYM_DAYS } from '@/data/defaultGym'
 import { ExerciseCard } from './ExerciseCard'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useLogWorkout, useDeleteWorkoutLog, useWorkoutLogs } from '@/hooks/useCalendarData'
+import { toDateStr, getDayOfWeekIndex, getMondayOfWeek } from '@/lib/dateUtils'
+import { MuscleMap } from './MuscleMap'
 
 const DAY_LABELS = [
   'Mon · Push', 'Tue · Legs', 'Wed · Pull',
@@ -10,6 +14,16 @@ const DAY_LABELS = [
 export function GymPage() {
   const { activeGymDay, setActiveGymDay } = useUIStore()
   const day = GYM_DAYS[activeGymDay]
+  const { user } = useAuthStore()
+  const todayIdx = getDayOfWeekIndex(new Date())
+  const todayStr = toDateStr(new Date())
+  const isViewingToday = activeGymDay === todayIdx
+
+  const weekStart = getMondayOfWeek(new Date())
+  const { data: workoutLogs } = useWorkoutLogs(weekStart)
+  const logWorkout = useLogWorkout()
+  const deleteLog = useDeleteWorkoutLog()
+  const todayLogged = workoutLogs?.get(todayStr) ?? null
 
   return (
     <div style={{ padding: '14px 16px' }}>
@@ -51,6 +65,9 @@ export function GymPage() {
           </button>
         ))}
       </div>
+
+      {/* Muscle map */}
+      <MuscleMap day={day} />
 
       {/* Rest day */}
       {day.isRest && (
@@ -106,6 +123,38 @@ export function GymPage() {
                 </>
               )}
             </div>
+
+            {/* Log workout */}
+            {user && isViewingToday && (
+              <div style={{ marginTop: 12, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+                {todayLogged ? (
+                  <button
+                    onClick={() => deleteLog.mutate(todayStr)}
+                    style={{
+                      width: '100%', padding: '8px', borderRadius: 'var(--radius-sm)',
+                      background: 'var(--greenbg)', border: '1px solid rgba(86,201,154,0.3)',
+                      color: 'var(--green)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                    }}
+                  >
+                    Workout logged ✓ — tap to undo
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => logWorkout.mutate({ logged_date: todayStr, gym_day_index: todayIdx })}
+                    disabled={logWorkout.isPending}
+                    style={{
+                      width: '100%', padding: '8px', borderRadius: 'var(--radius-sm)',
+                      background: 'var(--accentbg)', border: '1px solid var(--accentbd)',
+                      color: 'var(--accent)', fontSize: 13, fontWeight: 600,
+                      cursor: logWorkout.isPending ? 'default' : 'pointer',
+                      opacity: logWorkout.isPending ? 0.7 : 1,
+                    }}
+                  >
+                    Log today's workout
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Warmup banner */}

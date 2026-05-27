@@ -58,3 +58,8 @@ h1, h2, h3 {
   font-family: 'Space Grotesk', system-ui, sans-serif;
   letter-spacing: -0.02em;
 }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

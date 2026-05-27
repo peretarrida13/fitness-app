@@ -15,7 +15,7 @@ export function GymPage() {
     <div style={{ padding: '14px 16px' }}>
       {/* Sub header */}
       <div style={{ padding: '20px 0 14px', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
-        <h1 style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 22, fontWeight: 400, color: 'var(--text)' }}>
+        <h1 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 22, fontWeight: 700, color: 'var(--text)' }}>
           Gym Programme
         </h1>
         <p style={{ fontSize: 12, color: 'var(--text3)', marginTop: 3 }}>
@@ -61,7 +61,7 @@ export function GymPage() {
           }}
         >
           <div style={{ fontSize: 44, marginBottom: 14 }}>😴</div>
-          <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 22, fontWeight: 400, color: 'var(--text)', marginBottom: 10 }}>
+          <div style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 22, fontWeight: 700, color: 'var(--text)', marginBottom: 10 }}>
             Full Rest Day
           </div>
           <div style={{ fontSize: 13, color: 'var(--text3)', lineHeight: 1.7, maxWidth: 280, margin: '0 auto' }}>
@@ -87,7 +87,7 @@ export function GymPage() {
                 background: 'linear-gradient(90deg, var(--accent), var(--accent2))',
               }}
             />
-            <div style={{ fontFamily: "'DM Serif Display', Georgia, serif", fontSize: 19, fontWeight: 400, color: 'var(--text)' }}>
+            <div style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif", fontSize: 19, fontWeight: 700, color: 'var(--text)' }}>
               {day.name}
             </div>
             <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 3 }}>{day.sub}</div>

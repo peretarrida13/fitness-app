@@ -23,15 +23,15 @@ export function MealsPage() {
       >
         <h1
           style={{
-            fontFamily: "'DM Serif Display', Georgia, serif",
-            fontSize: 24, fontWeight: 400,
-            color: 'var(--text)', letterSpacing: '-0.3px', lineHeight: 1.1,
+            fontFamily: "'Space Grotesk', system-ui, sans-serif",
+            fontSize: 24, fontWeight: 700,
+            color: 'var(--text)', letterSpacing: '-0.5px', lineHeight: 1.1,
           }}
         >
           7-Day Meal Plan
         </h1>
         <p style={{ fontSize: 12, color: 'var(--text3)', marginTop: 3, letterSpacing: '0.02em' }}>
-          High protein · ~2,150 kcal · No vegetables
+          High protein · 2,150 kcal · Recomposition plan
         </p>
       </div>
 

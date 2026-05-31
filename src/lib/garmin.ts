@@ -37,5 +37,9 @@ export async function syncGarminData(startDate: string): Promise<{ synced: numbe
       body: JSON.stringify({ startDate, days: 7 }),
     }
   )
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as { error?: string }).error ?? `Sync failed (${res.status})`)
+  }
   return res.json()
 }

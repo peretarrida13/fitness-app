@@ -12,6 +12,8 @@ interface Props {
   runs: Activity[]
   googleEvents: GoogleCalendarEvent[]
   isToday: boolean
+  habitsDone?: number
+  habitsTotal?: number
   onLogWorkout: () => void
   onDeleteLog: () => void
 }
@@ -41,7 +43,7 @@ function getGymLabel(day: GymDay): string {
 
 export function CalendarDayCell({
   date, gymDay, mealDay, workoutLog, activity, runs,
-  googleEvents, isToday, onLogWorkout, onDeleteLog,
+  googleEvents, isToday, habitsDone = 0, habitsTotal = 0, onLogWorkout, onDeleteLog,
 }: Props) {
   const dayName = getDayName(date)
   const dayNum = date.getDate()
@@ -168,6 +170,13 @@ export function CalendarDayCell({
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Row 5b: Habits */}
+      {habitsTotal > 0 && (
+        <div style={{ fontSize: 11, color: habitsDone === habitsTotal ? 'var(--green)' : 'var(--text3)' }}>
+          ✅ {habitsDone}/{habitsTotal} habits
         </div>
       )}
 

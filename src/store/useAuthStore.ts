@@ -2,6 +2,19 @@ import { create } from 'zustand'
 import type { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
+// Client-side rate limit for magic link: 5 per 15 min
+const magicLinkAttempts: number[] = []
+function checkMagicLinkRateLimit(): boolean {
+  const now = Date.now()
+  const cutoff = now - 15 * 60 * 1000
+  while (magicLinkAttempts.length && magicLinkAttempts[0] < cutoff) magicLinkAttempts.shift()
+  if (magicLinkAttempts.length >= 5) return false
+  magicLinkAttempts.push(now)
+  return true
+}
+
+const EMAIL_REGEX = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/
+
 interface AuthState {
   user: User | null
   session: Session | null
@@ -27,8 +40,15 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   signInWithMagicLink: async (email) => {
+    if (!checkMagicLinkRateLimit()) {
+      return { error: 'Too many attempts. Please wait 15 minutes.' }
+    }
+    const trimmed = email.trim().toLowerCase()
+    if (!EMAIL_REGEX.test(trimmed) || trimmed.length > 254) {
+      return { error: 'Invalid email address' }
+    }
     const { error } = await supabase.auth.signInWithOtp({
-      email,
+      email: trimmed,
       options: { emailRedirectTo: window.location.origin },
     })
     return { error: error?.message ?? null }

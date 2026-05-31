@@ -8,6 +8,9 @@ import { ShoppingPage } from './components/shopping/ShoppingPage'
 import { TipsPage } from './components/tips/TipsPage'
 import { ProgressPage } from './components/progress/ProgressPage'
 import { CalendarPage } from './components/calendar/CalendarPage'
+import { HabitsPage } from './components/habits/HabitsPage'
+import { HomePage } from './components/home/HomePage'
+import { SettingsPage } from './components/settings/SettingsPage'
 import { AuthGate } from './components/auth/AuthGate'
 import { PasswordGate } from './components/auth/PasswordGate'
 
@@ -22,13 +25,16 @@ export default function App() {
             <AuthGate>
             <Routes>
               <Route element={<AppShell />}>
-                <Route index element={<Navigate to="/meals" replace />} />
+                <Route index element={<Navigate to="/home" replace />} />
+                <Route path="/home" element={<HomePage />} />
                 <Route path="/meals" element={<MealsPage />} />
                 <Route path="/gym" element={<GymPage />} />
                 <Route path="/progress" element={<ProgressPage />} />
                 <Route path="/shopping" element={<ShoppingPage />} />
                 <Route path="/tips" element={<TipsPage />} />
                 <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/habits" element={<HabitsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
               </Route>
             </Routes>
             </AuthGate>

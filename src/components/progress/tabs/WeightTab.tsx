@@ -4,9 +4,8 @@ import {
   ResponsiveContainer, ReferenceLine, CartesianGrid,
 } from 'recharts'
 import { useWeightLogs, useLogWeight, useDeleteWeightLog } from '@/hooks/useProgressData'
+import { useSettingsStore } from '@/store/useSettingsStore'
 import type { WeightLog } from '@/types/supabase'
-
-const GOAL_KG = 80
 
 function rollingAvg(logs: WeightLog[], window = 7): { date: string; weight: number; avg: number | null }[] {
   return logs.map((log, i) => {
@@ -33,6 +32,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: { valu
 }
 
 export function WeightTab() {
+  const { weightGoalKg } = useSettingsStore()
   const { data: logs = [] } = useWeightLogs()
   const logWeight = useLogWeight()
   const deleteWeight = useDeleteWeightLog()
@@ -75,7 +75,7 @@ export function WeightTab() {
           lbl={`vs ${logs.length} days ago`}
           color={totalChange !== null && totalChange <= 0 ? 'var(--green)' : 'var(--red)'}
         />
-        <StatBox val={`${GOAL_KG} kg`} lbl="Goal" color="var(--gold)" />
+        <StatBox val={`${weightGoalKg} kg`} lbl="Goal" color="var(--gold)" />
       </div>
 
       {/* Chart */}
@@ -90,13 +90,13 @@ export function WeightTab() {
               <XAxis dataKey="date" tick={{ fill: '#44445a', fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
               <YAxis domain={domain} tick={{ fill: '#44445a', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}`} />
               <Tooltip content={<CustomTooltip />} />
-              <ReferenceLine y={GOAL_KG} stroke="#f0c060" strokeDasharray="4 4" strokeOpacity={0.5} />
+              <ReferenceLine y={weightGoalKg} stroke="#f0c060" strokeDasharray="4 4" strokeOpacity={0.5} />
               <Line type="monotone" dataKey="weight" stroke="rgba(91,141,238,0.35)" strokeWidth={1.5} dot={false} name="weight" />
               <Line type="monotone" dataKey="avg" stroke="#5b8dee" strokeWidth={2} dot={false} name="avg" />
             </LineChart>
           </ResponsiveContainer>
           <div style={{ fontSize: 10, color: 'var(--text3)', textAlign: 'center', marginTop: 2 }}>
-            — 7-day average &nbsp;· &nbsp;- - goal {GOAL_KG} kg
+            — 7-day average &nbsp;· &nbsp;- - goal {weightGoalKg} kg
           </div>
         </div>
       ) : (

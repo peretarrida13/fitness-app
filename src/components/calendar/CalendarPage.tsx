@@ -5,6 +5,7 @@ import {
   useWorkoutLogs, useLogWorkout, useDeleteWorkoutLog,
   useDailyActivity, useGarminSync, useActivities,
 } from '@/hooks/useCalendarData'
+import { useHabits, useHabitLogsForWeek } from '@/hooks/useHabitData'
 import { useGoogleCalendarEvents } from '@/hooks/useGoogleCalendar'
 import { GYM_DAYS } from '@/data/defaultGym'
 import { DAYS } from '@/data/defaultMeals'
@@ -28,6 +29,8 @@ export function CalendarPage() {
   const { data: activityMap } = useDailyActivity(weekStart)
   const { data: activitiesMap } = useActivities(weekStart)
   const { data: googleEvents } = useGoogleCalendarEvents(weekStart, googleAccessToken)
+  const { data: habits = [] } = useHabits()
+  const { data: habitLogsMap } = useHabitLogsForWeek(weekStart)
   const logWorkout = useLogWorkout()
   const deleteLog = useDeleteWorkoutLog()
   const garminSync = useGarminSync()
@@ -73,6 +76,9 @@ export function CalendarPage() {
           const runs = activitiesMap?.get(dateStr) ?? []
           const events = googleEvents?.get(dateStr) ?? []
 
+          const habitsDone = habitLogsMap?.get(dateStr)?.size ?? 0
+          const habitsTotal = habits.length
+
           return (
             <CalendarDayCell
               key={dateStr}
@@ -84,6 +90,8 @@ export function CalendarPage() {
               runs={runs}
               googleEvents={events}
               isToday={isToday(date)}
+              habitsDone={habitsDone}
+              habitsTotal={habitsTotal}
               onLogWorkout={() =>
                 logWorkout.mutate({ logged_date: dateStr, gym_day_index: dayIdx })
               }

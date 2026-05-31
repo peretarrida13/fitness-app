@@ -66,7 +66,7 @@ export function HealthTab() {
     date: d.activity_date.slice(5),
     rhr: d.resting_heart_rate,
     stress: d.stress_avg,
-    active_min: d.active_seconds !== null ? Math.round((d.active_seconds ?? 0) / 60) : null,
+    active_min: d.active_seconds !== null ? Math.round(d.active_seconds / 60) : null,
     steps: d.steps,
     hrv: d.hrv_rmssd,
   }))

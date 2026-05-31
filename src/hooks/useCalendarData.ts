@@ -4,6 +4,8 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { toDateStr, getWeekDays } from '@/lib/dateUtils'
 import { syncGarminData } from '@/lib/garmin'
 import type { WorkoutLog, DailyActivity, Activity } from '@/types/supabase'
+import { GYM_DAYS } from '@/data/defaultGym'
+import { useWorkoutHistory } from '@/hooks/useProgressData'
 
 function weekDateRange(weekStart: Date) {
   const days = getWeekDays(weekStart)
@@ -114,4 +116,30 @@ export function useGarminSync() {
     mutationFn: (startDate: string) => syncGarminData(startDate),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['daily_activity'] }),
   })
+}
+
+function computeStreak(loggedDates: Set<string>): number {
+  let streak = 0
+  const today = new Date()
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(today)
+    d.setDate(d.getDate() - i)
+    const dayIdx = (d.getDay() + 6) % 7
+    const gymDay = GYM_DAYS[dayIdx]
+    if (gymDay.isRest) continue
+    if (loggedDates.has(toDateStr(d))) {
+      streak++
+    } else if (i === 0) {
+      // today not yet logged — don't break streak
+    } else {
+      break
+    }
+  }
+  return streak
+}
+
+export function useWorkoutStreak(): number {
+  const { data: history = [] } = useWorkoutHistory(60)
+  const loggedSet = new Set(history.map((h) => h.logged_date))
+  return computeStreak(loggedSet)
 }

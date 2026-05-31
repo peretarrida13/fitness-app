@@ -2,6 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const GARMIN_DAILIES_URL     = 'https://healthapi.garmin.com/wellness-api/rest/dailies'
 const GARMIN_ACTIVITIES_URL  = 'https://healthapi.garmin.com/wellness-api/rest/activities'
+const ALLOWED_ORIGIN = Deno.env.get('APP_URL') ?? ''
 
 async function hmacSha1(key: string, data: string): Promise<string> {
   const cryptoKey = await crypto.subtle.importKey(
@@ -62,7 +63,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
         'Access-Control-Allow-Headers': 'authorization, content-type',
       },
     })

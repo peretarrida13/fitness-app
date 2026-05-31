@@ -1,12 +1,43 @@
+import { useState, useEffect } from 'react'
 import { useUIStore } from '@/store/useUIStore'
+import { useAuthStore } from '@/store/useAuthStore'
 import { DAYS } from '@/data/defaultMeals'
+import { getMondayOfWeek, toDateStr } from '@/lib/dateUtils'
+import { useMealLogsForDay, useToggleMealLog } from '@/hooks/useMealLogs'
+import { useExtrasStore } from '@/store/useExtrasStore'
 import { MealCard } from './MealCard'
 
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 export function MealsPage() {
   const { activeMealDay, setActiveMealDay } = useUIStore()
+  const { user } = useAuthStore()
   const day = DAYS[activeMealDay]
+
+  const mondayOfWeek = getMondayOfWeek(new Date())
+  const selectedDayDate = new Date(mondayOfWeek)
+  selectedDayDate.setDate(selectedDayDate.getDate() + activeMealDay)
+  const selectedDateStr = toDateStr(selectedDayDate)
+
+  const { data: eatenSet } = useMealLogsForDay(selectedDateStr)
+  const toggleMealLog = useToggleMealLog()
+
+  const extrasMap = useExtrasStore((s) => s.extras)
+  const setExtras = useExtrasStore((s) => s.setExtras)
+  const storedExtras = extrasMap[selectedDateStr] ?? { kcal: 0, protein: 0 }
+
+  const [extraKcal, setExtraKcal] = useState(storedExtras.kcal ? String(storedExtras.kcal) : '')
+  const [extraProtein, setExtraProtein] = useState(storedExtras.protein ? String(storedExtras.protein) : '')
+
+  useEffect(() => {
+    const e = extrasMap[selectedDateStr] ?? { kcal: 0, protein: 0 }
+    setExtraKcal(e.kcal ? String(e.kcal) : '')
+    setExtraProtein(e.protein ? String(e.protein) : '')
+  }, [selectedDateStr, extrasMap])
+
+  const eatenMeals = user && eatenSet ? day.meals.filter((m) => eatenSet.has(m.id)) : []
+  const eatenKcal = eatenMeals.reduce((sum, m) => sum + m.kcal, 0) + (parseInt(extraKcal) || 0)
+  const eatenProtein = eatenMeals.reduce((sum, m) => sum + (m.protein ?? 0), 0) + (parseInt(extraProtein) || 0)
 
   return (
     <div>
@@ -142,11 +173,85 @@ export function MealsPage() {
           ))}
         </div>
 
+        {/* Eaten today running total */}
+        {user && eatenMeals.length > 0 && (
+          <div style={{
+            padding: '10px 14px', marginBottom: 14,
+            background: 'var(--greenbg)', border: '1px solid rgba(86,201,154,0.25)',
+            borderRadius: 'var(--radius)',
+            fontSize: 13, color: 'var(--green)',
+          }}>
+            Eaten so far: <strong>{eatenKcal.toLocaleString()}</strong> / {day.macros.kcal.toLocaleString()} kcal
+            {eatenProtein > 0 && <> · <strong>{eatenProtein}g</strong> / {day.macros.protein}g protein</>}
+          </div>
+        )}
+
         {/* Meal cards */}
         {day.meals.map((meal) => (
-          <MealCard key={meal.id} meal={meal} />
+          <MealCard
+            key={meal.id}
+            meal={meal}
+            isEaten={user ? (eatenSet?.has(meal.id) ?? false) : false}
+            onToggle={user
+              ? () => toggleMealLog.mutate({ date: selectedDateStr, mealId: meal.id, currentlyEaten: eatenSet?.has(meal.id) ?? false })
+              : undefined
+            }
+          />
         ))}
+
+        {/* Extras / Off-plan */}
+        <div style={{
+          background: 'var(--card)', border: '1px solid var(--edge)',
+          borderRadius: 'var(--radius)', padding: '12px 14px', marginTop: 8,
+        }}>
+          <div style={{
+            fontSize: 10, fontWeight: 600, color: 'var(--text3)',
+            textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10,
+          }}>
+            Extras / Off-plan
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4 }}>Extra kcal</div>
+              <input
+                type="number"
+                placeholder="0"
+                value={extraKcal}
+                min={0}
+                max={5000}
+                onChange={(e) => {
+                  setExtraKcal(e.target.value)
+                  setExtras(selectedDateStr, parseInt(e.target.value) || 0, parseInt(extraProtein) || 0)
+                }}
+                style={inputStyle}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4 }}>Extra protein (g)</div>
+              <input
+                type="number"
+                placeholder="0"
+                value={extraProtein}
+                min={0}
+                max={500}
+                onChange={(e) => {
+                  setExtraProtein(e.target.value)
+                  setExtras(selectedDateStr, parseInt(extraKcal) || 0, parseInt(e.target.value) || 0)
+                }}
+                style={inputStyle}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
+}
+
+const inputStyle: React.CSSProperties = {
+  width: '100%', boxSizing: 'border-box',
+  padding: '8px 10px',
+  background: 'var(--bg2)', border: '1px solid var(--edge)',
+  borderRadius: 'var(--radius-sm)', color: 'var(--text)',
+  fontSize: 14, outline: 'none',
 }

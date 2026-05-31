@@ -19,7 +19,7 @@ export function CalendarConnectBar({
   const { user, signOut } = useAuthStore()
 
   const googleLogin = useGoogleLogin({
-    scope: 'https://www.googleapis.com/auth/calendar.events.readonly',
+    scope: 'https://www.googleapis.com/auth/calendar.events',
     onSuccess: (res) => onGoogleToken(res.access_token),
   })
 

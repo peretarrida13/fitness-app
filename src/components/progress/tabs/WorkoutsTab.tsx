@@ -1,4 +1,5 @@
 import { useWorkoutHistory } from '@/hooks/useProgressData'
+import { useWorkoutStreak } from '@/hooks/useCalendarData'
 import { GYM_DAYS } from '@/data/defaultGym'
 import { getMondayOfWeek, toDateStr } from '@/lib/dateUtils'
 
@@ -9,32 +10,12 @@ const GYM_TYPE_COLOR: Record<string, string> = {
   rest: 'var(--text3)',
 }
 
-function computeStreak(loggedDates: Set<string>): number {
-  let streak = 0
-  const today = new Date()
-  for (let i = 0; i < 60; i++) {
-    const d = new Date(today)
-    d.setDate(d.getDate() - i)
-    const dayIdx = (d.getDay() + 6) % 7
-    const gymDay = GYM_DAYS[dayIdx]
-    if (gymDay.isRest) continue // skip rest days
-    if (loggedDates.has(toDateStr(d))) {
-      streak++
-    } else if (i === 0) {
-      // today not yet logged — don't break streak
-    } else {
-      break
-    }
-  }
-  return streak
-}
-
 export function WorkoutsTab() {
   const { data: history = [] } = useWorkoutHistory(84)
 
   const loggedSet = new Set(history.map((h) => h.logged_date))
 
-  const streak = computeStreak(loggedSet)
+  const streak = useWorkoutStreak()
   const thisWeekStart = getMondayOfWeek(new Date())
   const thisWeekDates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(thisWeekStart)

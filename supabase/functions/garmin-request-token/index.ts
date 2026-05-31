@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const GARMIN_REQUEST_TOKEN_URL = 'https://connectapi.garmin.com/oauth-service/oauth/request_token'
+const ALLOWED_ORIGIN = Deno.env.get('APP_URL') ?? ''
 
 async function hmacSha1(key: string, data: string): Promise<string> {
   const cryptoKey = await crypto.subtle.importKey(
@@ -29,7 +30,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
         'Access-Control-Allow-Headers': 'authorization, content-type',
       },
     })
@@ -86,7 +87,7 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify({ oauth_token: parsed.oauth_token, oauth_token_secret: parsed.oauth_token_secret }),
-      { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } },
+      { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': ALLOWED_ORIGIN } },
     )
   } catch (err) {
     return new Response(JSON.stringify({ error: String(err) }), { status: 500 })

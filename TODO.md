@@ -16,8 +16,8 @@
 - [ ] Site settings → Environment variables → add:
   - [ ] `VITE_SUPABASE_URL` — from Step 1
   - [ ] `VITE_SUPABASE_ANON_KEY` — from Step 1
-  - [ ] `VITE_APP_PASSWORD` — any password you want for the app gate
   - [ ] `VITE_GOOGLE_CLIENT_ID` — can leave blank for now, add later
+  - **Do NOT add `VITE_APP_PASSWORD` here** — the gate password is stored as a Supabase secret (`GATE_PASSWORD`) and verified server-side; putting it in Netlify env vars would bundle it into the JS build
 - [ ] Deploy and note your Netlify URL (e.g. `https://your-site.netlify.app`)
 
 ## Step 3 — Wire Supabase redirect back to Netlify
@@ -48,11 +48,13 @@
   - [ ] `GARMIN_CONSUMER_SECRET`
   - [ ] `APP_URL` = `https://your-site.netlify.app`
   - [ ] `SUPABASE_SERVICE_ROLE_KEY` (Supabase → Project Settings → API → service_role key)
-- [ ] Deploy the 3 edge functions:
+  - [ ] `GATE_PASSWORD` = your chosen app unlock password (never put this in `.env.local` or Netlify env vars — server-side only)
+- [ ] Deploy the edge functions:
   ```bash
   supabase login
   supabase link --project-ref <your-project-ref>
   supabase functions deploy garmin-request-token
   supabase functions deploy garmin-oauth-callback
   supabase functions deploy garmin-sync
+  supabase functions deploy verify-gate-password
   ```

@@ -1,3 +1,6 @@
+import { useState } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
+
 interface TipCard {
   title: string
   content: string
@@ -113,6 +116,17 @@ const TIPS: TipSection[] = [
 ]
 
 export function TipsPage() {
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+
+  function toggleSection(label: string) {
+    setCollapsed((prev) => {
+      const next = new Set(prev)
+      if (next.has(label)) next.delete(label)
+      else next.add(label)
+      return next
+    })
+  }
+
   return (
     <div style={{ padding: '14px 16px' }}>
       {/* Header */}
@@ -125,45 +139,58 @@ export function TipsPage() {
         </p>
       </div>
 
-      {TIPS.map((section) => (
-        <div key={section.label}>
-          <div
-            style={{
-              fontSize: 10, fontWeight: 600, letterSpacing: '0.10em',
-              color: 'var(--text3)', textTransform: 'uppercase',
-              margin: '20px 0 10px',
-            }}
-          >
-            {section.label}
-          </div>
-          {section.cards.map((card) => (
-            <div
-              key={card.title}
+      {TIPS.map((section) => {
+        const isCollapsed = collapsed.has(section.label)
+        return (
+          <div key={section.label}>
+            <button
+              onClick={() => toggleSection(section.label)}
               style={{
-                background: 'var(--card)', border: '1px solid var(--edge)',
-                borderRadius: 'var(--radius)', padding: '13px 14px', marginBottom: 8,
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                margin: '20px 0 10px',
               }}
             >
+              <span style={{
+                fontSize: 10, fontWeight: 600, letterSpacing: '0.10em',
+                color: 'var(--text3)', textTransform: 'uppercase',
+              }}>
+                {section.label}
+              </span>
+              {isCollapsed
+                ? <ChevronDown size={14} color="var(--text3)" />
+                : <ChevronUp size={14} color="var(--text3)" />
+              }
+            </button>
+            {!isCollapsed && section.cards.map((card) => (
               <div
+                key={card.title}
                 style={{
-                  fontSize: 13, fontWeight: 600, color: 'var(--text)',
-                  marginBottom: 7, display: 'flex', alignItems: 'center', gap: 8,
+                  background: 'var(--card)', border: '1px solid var(--edge)',
+                  borderRadius: 'var(--radius)', padding: '13px 14px', marginBottom: 8,
                 }}
               >
-                {card.title}
+                <div
+                  style={{
+                    fontSize: 13, fontWeight: 600, color: 'var(--text)',
+                    marginBottom: 7, display: 'flex', alignItems: 'center', gap: 8,
+                  }}
+                >
+                  {card.title}
+                </div>
+                <p
+                  style={{
+                    fontSize: 13, color: 'var(--text2)', lineHeight: 1.65,
+                    whiteSpace: 'pre-line',
+                  }}
+                >
+                  {card.content}
+                </p>
               </div>
-              <p
-                style={{
-                  fontSize: 13, color: 'var(--text2)', lineHeight: 1.65,
-                  whiteSpace: 'pre-line',
-                }}
-              >
-                {card.content}
-              </p>
-            </div>
-          ))}
-        </div>
-      ))}
+            ))}
+          </div>
+        )
+      })}
     </div>
   )
 }

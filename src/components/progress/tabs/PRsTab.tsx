@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
+import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts'
 import { usePersonalRecords, useAddPR, useDeletePR } from '@/hooks/useProgressData'
 import type { PersonalRecord } from '@/types/supabase'
 
@@ -47,8 +48,10 @@ export function PRsTab() {
   async function handleAdd(exerciseName: string) {
     const kg = parseFloat(form.weight_kg)
     const reps = parseInt(form.reps)
-    if (isNaN(kg) || isNaN(reps) || kg <= 0 || reps <= 0) return
-    await addPR.mutateAsync({ exercise_name: exerciseName, weight_kg: kg, reps, note: form.note || undefined })
+    if (isNaN(kg) || kg <= 0 || kg > 500) return
+    if (isNaN(reps) || reps < 1 || reps > 100) return
+    const note = form.note.slice(0, 200) || undefined
+    await addPR.mutateAsync({ exercise_name: exerciseName, weight_kg: kg, reps, note })
     setForm({ weight_kg: '', reps: '', note: '' })
     setExpanded(exerciseName)
   }
@@ -95,6 +98,33 @@ export function PRsTab() {
             {/* Expanded content */}
             {isOpen && (
               <div style={{ borderTop: '1px solid var(--border)', padding: '12px 14px' }}>
+                {/* Sparkline trend */}
+                {history.length > 1 && (() => {
+                  const sparkData = history
+                    .slice()
+                    .sort((a, b) => a.logged_date.localeCompare(b.logged_date))
+                    .map((pr) => ({ date: pr.logged_date.slice(5), e1rm: e1rm(pr.weight_kg, pr.reps) }))
+                  return (
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        e1RM trend
+                      </div>
+                      <ResponsiveContainer width="100%" height={60}>
+                        <LineChart data={sparkData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+                          <Tooltip
+                            content={({ active, payload }) =>
+                              active && payload?.length
+                                ? <div style={{ background: 'var(--card)', border: '1px solid var(--edge)', borderRadius: 6, padding: '4px 8px', fontSize: 11, color: 'var(--accent)' }}>{payload[0].value} kg e1RM</div>
+                                : null
+                            }
+                          />
+                          <Line type="monotone" dataKey="e1rm" stroke="var(--accent)" strokeWidth={2} dot={false} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  )
+                })()}
+
                 {/* History */}
                 {history.length > 0 && (
                   <div style={{ marginBottom: 12 }}>
@@ -181,8 +211,9 @@ export function PRsTab() {
           />
           <button
             onClick={() => {
-              if (newExercise.trim()) {
-                setExpanded(newExercise.trim())
+              const name = newExercise.trim().slice(0, 100)
+              if (name) {
+                setExpanded(name)
                 setNewExercise('')
               }
               setAddingCustom(false)

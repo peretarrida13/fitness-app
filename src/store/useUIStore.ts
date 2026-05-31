@@ -8,7 +8,7 @@ interface UIState {
 }
 
 export const useUIStore = create<UIState>((set) => ({
-  activeMealDay: 0,
+  activeMealDay: (new Date().getDay() + 6) % 7,
   activeGymDay: 0,
   setActiveMealDay: (index) => set({ activeMealDay: index }),
   setActiveGymDay: (index) => set({ activeGymDay: index }),

@@ -1,0 +1,2 @@
+[functions.verify-gate-password]
+verify_jwt = false

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useHabits, useHabitStreaks, useAddHabit } from '@/hooks/useHabitData'
 import { TodayTab } from './tabs/TodayTab'
-import { TomorrowTab } from './tabs/TomorrowTab'
+import { TasksTab } from './tabs/TasksTab'
 import { WeekTab } from './tabs/WeekTab'
 import type { HabitColor } from '@/types/supabase'
 
@@ -14,7 +14,7 @@ export const HABIT_COLORS: { value: HabitColor; label: string }[] = [
   { value: '--text2',  label: 'Grey'  },
 ]
 
-type Tab = 'today' | 'tomorrow' | 'week'
+type Tab = 'today' | 'tasks' | 'week'
 
 export function HabitsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('today')
@@ -70,24 +70,26 @@ export function HabitsPage() {
               Track your daily habits
             </p>
           </div>
-          <button
-            onClick={() => setShowAddForm((v) => !v)}
-            style={{
-              width: 36, height: 36, borderRadius: '50%',
-              background: showAddForm ? 'var(--accent)' : 'var(--card)',
-              border: '1px solid var(--edge)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', color: showAddForm ? '#fff' : 'var(--text2)',
-              transition: 'background 0.15s, color 0.15s',
-            }}
-          >
-            <Plus size={18} />
-          </button>
+          {activeTab === 'today' && (
+            <button
+              onClick={() => setShowAddForm((v) => !v)}
+              style={{
+                width: 36, height: 36, borderRadius: '50%',
+                background: showAddForm ? 'var(--accent)' : 'var(--card)',
+                border: '1px solid var(--edge)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: showAddForm ? '#fff' : 'var(--text2)',
+                transition: 'background 0.15s, color 0.15s',
+              }}
+            >
+              <Plus size={18} />
+            </button>
+          )}
         </div>
 
         {/* Tab strip */}
         <div style={{ display: 'flex' }}>
-          {(['today', 'tomorrow', 'week'] as Tab[]).map((tab) => (
+          {(['today', 'tasks', 'week'] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -103,14 +105,14 @@ export function HabitsPage() {
                 transition: 'color 0.15s, border-color 0.15s',
               }}
             >
-              {tab === 'today' ? 'Today' : tab === 'tomorrow' ? 'Tomorrow' : 'This Week'}
+              {tab === 'today' ? 'Today' : tab === 'tasks' ? 'Tasks' : 'This Week'}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Add habit form */}
-      {showAddForm && (
+      {/* Add habit form (Today tab only) */}
+      {showAddForm && activeTab === 'today' && (
         <div style={{
           margin: '12px 16px 0',
           background: 'var(--card)',
@@ -204,7 +206,7 @@ export function HabitsPage() {
       {/* Tab content */}
       <div style={{ padding: '0 16px 96px' }}>
         {activeTab === 'today' && <TodayTab habits={habits} streaks={streaks} />}
-        {activeTab === 'tomorrow' && <TomorrowTab habits={habits} />}
+        {activeTab === 'tasks' && <TasksTab />}
         {activeTab === 'week' && <WeekTab habits={habits} />}
       </div>
     </div>

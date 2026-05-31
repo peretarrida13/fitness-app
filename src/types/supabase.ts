@@ -114,3 +114,13 @@ export interface HabitLog {
   logged_date: string
   created_at: string
 }
+
+// ── Todo List ─────────────────────────────────────────────────────────────────
+
+export interface Todo {
+  id: string
+  user_id: string
+  title: string
+  completed: boolean
+  created_at: string
+}

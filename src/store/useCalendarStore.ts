@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { getMondayOfWeek } from '@/lib/dateUtils'
 
 interface CalendarState {
@@ -13,21 +14,32 @@ interface CalendarState {
   setGarminConnected: (v: boolean) => void
 }
 
-export const useCalendarStore = create<CalendarState>((set, get) => ({
-  weekOffset: 0,
-  googleAccessToken: null,
-  garminConnected: false,
+export const useCalendarStore = create<CalendarState>()(
+  persist(
+    (set, get) => ({
+      weekOffset: 0,
+      googleAccessToken: null,
+      garminConnected: false,
 
-  prevWeek: () => set((s) => ({ weekOffset: s.weekOffset - 1 })),
-  nextWeek: () => set((s) => ({ weekOffset: s.weekOffset + 1 })),
-  resetToToday: () => set({ weekOffset: 0 }),
+      prevWeek: () => set((s) => ({ weekOffset: s.weekOffset - 1 })),
+      nextWeek: () => set((s) => ({ weekOffset: s.weekOffset + 1 })),
+      resetToToday: () => set({ weekOffset: 0 }),
 
-  getWeekStart: () => {
-    const monday = getMondayOfWeek(new Date())
-    monday.setDate(monday.getDate() + get().weekOffset * 7)
-    return monday
-  },
+      getWeekStart: () => {
+        const monday = getMondayOfWeek(new Date())
+        monday.setDate(monday.getDate() + get().weekOffset * 7)
+        return monday
+      },
 
-  setGoogleToken: (token) => set({ googleAccessToken: token }),
-  setGarminConnected: (v) => set({ garminConnected: v }),
-}))
+      setGoogleToken: (token) => set({ googleAccessToken: token }),
+      setGarminConnected: (v) => set({ garminConnected: v }),
+    }),
+    {
+      name: 'jarvis-calendar',
+      partialize: (s) => ({
+        googleAccessToken: s.googleAccessToken,
+        garminConnected: s.garminConnected,
+      }),
+    }
+  )
+)

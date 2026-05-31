@@ -242,68 +242,83 @@ export function HomePage() {
       </div>
 
       {/* Habits card */}
-      {habits.length > 0 && (
-        <div style={{
-          background: 'var(--card)', border: '1px solid var(--edge)',
-          borderRadius: 'var(--radius)', padding: '14px',
-          marginBottom: 10,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Habits
-            </div>
+      <div style={{
+        background: 'var(--card)', border: '1px solid var(--edge)',
+        borderRadius: 'var(--radius)', padding: '14px',
+        marginBottom: 10,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            Habits
+          </div>
+          {habits.length > 0 && (
             <div style={{ fontSize: 12, color: todayHabitsDone.size === habits.length ? 'var(--green)' : 'var(--text3)' }}>
               {todayHabitsDone.size}/{habits.length}
             </div>
-          </div>
-          {/* Progress bar */}
-          <div style={{
-            height: 4, background: 'var(--bg3)', borderRadius: 2, marginBottom: 12, overflow: 'hidden',
-          }}>
+          )}
+        </div>
+        {habits.length === 0 ? (
+          <button
+            onClick={() => navigate('/habits')}
+            style={{
+              background: 'none', border: 'none', padding: 0,
+              cursor: 'pointer', textAlign: 'left',
+            }}
+          >
+            <div style={{ fontSize: 13, color: 'var(--text3)' }}>No habits yet</div>
+            <div style={{ fontSize: 12, color: 'var(--accent)', marginTop: 2 }}>Add one in the Habits tab →</div>
+          </button>
+        ) : (
+          <>
+            {/* Progress bar */}
             <div style={{
-              height: '100%', borderRadius: 2,
-              background: todayHabitsDone.size === habits.length ? 'var(--green)' : 'var(--accent)',
-              width: `${habits.length > 0 ? (todayHabitsDone.size / habits.length) * 100 : 0}%`,
-              transition: 'width 0.3s',
-            }} />
-          </div>
-          {/* Habit rows */}
-          {habits.map((habit, idx) => {
-            const done = todayHabitsDone.has(habit.id)
-            return (
-              <div
-                key={habit.id}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '7px 0',
-                  borderBottom: idx < habits.length - 1 ? '1px solid var(--edge)' : 'none',
-                }}
-              >
-                <button
-                  onClick={() => toggleHabit.mutate({ habitId: habit.id, date: todayStr, currentlyDone: done })}
+              height: 4, background: 'var(--bg3)', borderRadius: 2, marginBottom: 12, overflow: 'hidden',
+            }}>
+              <div style={{
+                height: '100%', borderRadius: 2,
+                background: todayHabitsDone.size === habits.length ? 'var(--green)' : 'var(--accent)',
+                width: `${(todayHabitsDone.size / habits.length) * 100}%`,
+                transition: 'width 0.3s',
+              }} />
+            </div>
+            {/* Habit rows */}
+            {habits.map((habit, idx) => {
+              const done = todayHabitsDone.has(habit.id)
+              return (
+                <div
+                  key={habit.id}
                   style={{
-                    width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
-                    border: `1.5px solid var(${habit.color})`,
-                    background: done ? `var(${habit.color})` : 'transparent',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', transition: 'background 0.15s',
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    padding: '7px 0',
+                    borderBottom: idx < habits.length - 1 ? '1px solid var(--edge)' : 'none',
                   }}
                 >
-                  {done && <Check size={11} color="#fff" strokeWidth={3} />}
-                </button>
-                <span style={{ fontSize: 16, lineHeight: 1, flexShrink: 0 }}>{habit.icon}</span>
-                <span style={{
-                  flex: 1, fontSize: 14, fontWeight: 500,
-                  color: done ? 'var(--text3)' : 'var(--text)',
-                  textDecoration: done ? 'line-through' : 'none',
-                }}>
-                  {habit.name}
-                </span>
-              </div>
-            )
-          })}
-        </div>
-      )}
+                  <button
+                    onClick={() => toggleHabit.mutate({ habitId: habit.id, date: todayStr, currentlyDone: done })}
+                    style={{
+                      width: 22, height: 22, borderRadius: '50%', flexShrink: 0,
+                      border: `1.5px solid var(${habit.color})`,
+                      background: done ? `var(${habit.color})` : 'transparent',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', transition: 'background 0.15s',
+                    }}
+                  >
+                    {done && <Check size={11} color="#fff" strokeWidth={3} />}
+                  </button>
+                  <span style={{ fontSize: 16, lineHeight: 1, flexShrink: 0 }}>{habit.icon}</span>
+                  <span style={{
+                    flex: 1, fontSize: 14, fontWeight: 500,
+                    color: done ? 'var(--text3)' : 'var(--text)',
+                    textDecoration: done ? 'line-through' : 'none',
+                  }}>
+                    {habit.name}
+                  </span>
+                </div>
+              )
+            })}
+          </>
+        )}
+      </div>
 
       {/* Weight card */}
       {latestWeight && (

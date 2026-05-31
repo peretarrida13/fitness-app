@@ -38,11 +38,15 @@ export function useWorkoutLogs(weekStart: Date) {
 
 export function useLogWorkout() {
   const qc = useQueryClient()
+  const user = useAuthStore((s) => s.user)
   return useMutation({
     mutationFn: async ({ logged_date, gym_day_index }: { logged_date: string; gym_day_index: number }) => {
       const { error } = await supabase
         .from('workout_logs')
-        .upsert({ logged_date, gym_day_index }, { onConflict: 'user_id,logged_date' })
+        .upsert(
+          { user_id: user!.id, logged_date, gym_day_index },
+          { onConflict: 'user_id,logged_date' }
+        )
       if (error) throw error
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['workout_logs'] }),
@@ -51,11 +55,13 @@ export function useLogWorkout() {
 
 export function useDeleteWorkoutLog() {
   const qc = useQueryClient()
+  const user = useAuthStore((s) => s.user)
   return useMutation({
     mutationFn: async (logged_date: string) => {
       const { error } = await supabase
         .from('workout_logs')
         .delete()
+        .eq('user_id', user!.id)
         .eq('logged_date', logged_date)
       if (error) throw error
     },

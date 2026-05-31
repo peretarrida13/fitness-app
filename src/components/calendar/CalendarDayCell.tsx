@@ -16,6 +16,7 @@ interface Props {
   habitsTotal?: number
   onLogWorkout: () => void
   onDeleteLog: () => void
+  onOpenDetail?: () => void
 }
 
 function formatPace(secPerKm: number): string {
@@ -43,7 +44,7 @@ function getGymLabel(day: GymDay): string {
 
 export function CalendarDayCell({
   date, gymDay, mealDay, workoutLog, activity, runs,
-  googleEvents, isToday, habitsDone = 0, habitsTotal = 0, onLogWorkout, onDeleteLog,
+  googleEvents, isToday, habitsDone = 0, habitsTotal = 0, onLogWorkout, onDeleteLog, onOpenDetail,
 }: Props) {
   const dayName = getDayName(date)
   const dayNum = date.getDate()
@@ -60,14 +61,18 @@ export function CalendarDayCell({
   const extraEvents = googleEvents.length - 3
 
   return (
-    <div style={{
-      background: 'var(--card)',
-      border: `1px solid ${isToday ? 'var(--accentbd)' : 'var(--edge)'}`,
-      borderLeft: isToday ? '3px solid var(--accent)' : '1px solid var(--edge)',
-      borderRadius: 'var(--radius)',
-      padding: '12px 14px',
-      display: 'flex', flexDirection: 'column', gap: 8,
-    }}>
+    <div
+      onClick={onOpenDetail}
+      style={{
+        background: 'var(--card)',
+        border: `1px solid ${isToday ? 'var(--accentbd)' : 'var(--edge)'}`,
+        borderLeft: isToday ? '3px solid var(--accent)' : '1px solid var(--edge)',
+        borderRadius: 'var(--radius)',
+        padding: '12px 14px',
+        display: 'flex', flexDirection: 'column', gap: 8,
+        cursor: onOpenDetail ? 'pointer' : 'default',
+      }}
+    >
       {/* Row 1: Day header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
@@ -106,7 +111,7 @@ export function CalendarDayCell({
         </div>
         {!isRest && (
           <button
-            onClick={workoutLog ? onDeleteLog : onLogWorkout}
+            onClick={(e) => { e.stopPropagation(); workoutLog ? onDeleteLog() : onLogWorkout() }}
             title={workoutLog ? 'Mark as not done' : 'Log workout'}
             style={{
               width: 26, height: 26, borderRadius: '50%',
@@ -210,7 +215,7 @@ export function CalendarDayCell({
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: 6 }}>
           {workoutLog ? (
             <button
-              onClick={onDeleteLog}
+              onClick={(e) => { e.stopPropagation(); onDeleteLog() }}
               style={{
                 fontSize: 11, color: 'var(--green)', background: 'none',
                 border: 'none', cursor: 'pointer', padding: 0,
@@ -220,7 +225,7 @@ export function CalendarDayCell({
             </button>
           ) : (
             <button
-              onClick={onLogWorkout}
+              onClick={(e) => { e.stopPropagation(); onLogWorkout() }}
               style={{
                 fontSize: 11, color: 'var(--text3)', background: 'none',
                 border: 'none', cursor: 'pointer', padding: 0,

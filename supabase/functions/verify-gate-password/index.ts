@@ -16,7 +16,7 @@ const ALLOWED_ORIGIN = Deno.env.get('APP_URL') ?? ''
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
-  'Access-Control-Allow-Headers': 'authorization, content-type',
+  'Access-Control-Allow-Headers': 'authorization, content-type, x-client-info, apikey',
 }
 
 Deno.serve(async (req) => {

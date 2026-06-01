@@ -75,7 +75,7 @@ export function ProgressPage() {
             textAlign: 'center',
           }}>
             <div style={{ fontSize: 13, color: 'var(--text3)', lineHeight: 1.7 }}>
-              Sign in to track your progress, log workouts, and view your Garmin health data.
+              Sign in to track your progress, log workouts, and view your health data.
             </div>
           </div>
         ) : (

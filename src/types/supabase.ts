@@ -24,6 +24,19 @@ export interface DailyActivity {
   total_calories: number
   distance_meters: number
   synced_at: string
+  // health/recovery (from migration 002)
+  stress_avg: number | null
+  active_seconds: number | null
+  hrv_rmssd: number | null
+  body_battery_low: number | null
+  floors_climbed: number | null
+  // sleep (from migration 008)
+  sleep_hours: number | null
+  sleep_score: number | null
+  sleep_deep_minutes: number | null
+  sleep_light_minutes: number | null
+  sleep_rem_minutes: number | null
+  sleep_awake_minutes: number | null
 }
 
 export interface OAuthToken {
@@ -72,7 +85,7 @@ export interface PersonalRecord {
 export interface Activity {
   id: string
   user_id: string
-  garmin_activity_id: string
+  garmin_activity_id: string | null
   activity_date: string
   activity_type: string
   name: string | null
@@ -84,6 +97,7 @@ export interface Activity {
   elevation_gain_m: number | null
   avg_cadence: number | null
   synced_at: string
+  is_manual: boolean
 }
 
 export interface GoogleCalendarEvent {

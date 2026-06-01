@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/useAuthStore'
 import { toDateStr, getWeekDays } from '@/lib/dateUtils'
-import { syncGarminData } from '@/lib/garmin'
 import type { WorkoutLog, DailyActivity, Activity } from '@/types/supabase'
 import { GYM_DAYS } from '@/data/defaultGym'
 import { useWorkoutHistory } from '@/hooks/useProgressData'
@@ -116,11 +115,38 @@ export function useActivities(weekStart: Date) {
   })
 }
 
-export function useGarminSync() {
+export function useTodayDailyActivity() {
+  const user = useAuthStore((s) => s.user)
+  const todayStr = toDateStr(new Date())
+  return useQuery({
+    queryKey: ['daily_activity_today', todayStr],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('daily_activity')
+        .select('*')
+        .eq('activity_date', todayStr)
+        .maybeSingle()
+      if (error) throw error
+      return data as DailyActivity | null
+    },
+  })
+}
+
+export function useUpsertDailyActivity() {
   const qc = useQueryClient()
+  const user = useAuthStore((s) => s.user)
   return useMutation({
-    mutationFn: (startDate: string) => syncGarminData(startDate),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['daily_activity'] }),
+    mutationFn: async (payload: Partial<Omit<DailyActivity, 'id' | 'user_id'>> & { activity_date: string }) => {
+      const { error } = await supabase
+        .from('daily_activity')
+        .upsert({ user_id: user!.id, ...payload }, { onConflict: 'user_id,activity_date' })
+      if (error) throw error
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['daily_activity'] })
+      qc.invalidateQueries({ queryKey: ['daily_activity_today'] })
+    },
   })
 }
 

@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Check, Settings } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
-import { useWorkoutLogs, useLogWorkout, useDeleteWorkoutLog, useDailyActivity, useWorkoutStreak } from '@/hooks/useCalendarData'
+import { useWorkoutLogs, useLogWorkout, useDeleteWorkoutLog, useWorkoutStreak, useTodayDailyActivity } from '@/hooks/useCalendarData'
 import { useHabits, useHabitLogsForWeek, useToggleHabitLog } from '@/hooks/useHabitData'
 import { useWeightLogs } from '@/hooks/useProgressData'
 import { useMealLogsForDay } from '@/hooks/useMealLogs'
@@ -10,6 +11,8 @@ import { GYM_DAYS } from '@/data/defaultGym'
 import { DAYS } from '@/data/defaultMeals'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import { useWaterStore } from '@/store/useWaterStore'
+import { RecoveryCard } from '@/components/home/RecoveryCard'
+import { DailyInputModal } from '@/components/home/DailyInputModal'
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -20,6 +23,7 @@ export function HomePage() {
   const { user } = useAuthStore()
   const { weightGoalKg, calorieTarget, proteinTarget, waterGoalMl } = useSettingsStore()
   const waterStore = useWaterStore()
+  const [showDailyModal, setShowDailyModal] = useState(false)
 
   const today = new Date()
   const todayStr = toDateStr(today)
@@ -29,11 +33,11 @@ export function HomePage() {
   const mealDay = DAYS[dayIdx]
 
   const { data: workoutLogs } = useWorkoutLogs(weekStart)
-  const { data: activityMap } = useDailyActivity(weekStart)
   const { data: habits = [] } = useHabits()
   const { data: habitLogsMap } = useHabitLogsForWeek(weekStart)
   const { data: weightLogs = [] } = useWeightLogs(7)
   const { data: eatenSet } = useMealLogsForDay(todayStr)
+  const { data: todayActivity = null } = useTodayDailyActivity()
   const streak = useWorkoutStreak()
 
   const logWorkout = useLogWorkout()
@@ -42,7 +46,6 @@ export function HomePage() {
 
   const workoutLog = workoutLogs?.get(todayStr) ?? null
   const todayHabitsDone = habitLogsMap?.get(todayStr) ?? new Set<string>()
-  const todayActivity = activityMap?.get(todayStr) ?? null
 
   const latestWeight = weightLogs.length > 0 ? weightLogs[weightLogs.length - 1] : null
   const oldestWeight = weightLogs.length > 1 ? weightLogs[0] : null
@@ -347,40 +350,10 @@ export function HomePage() {
         </div>
       )}
 
-      {/* Steps card */}
-      {todayActivity && (
-        <div style={{
-          background: 'var(--card)', border: '1px solid var(--edge)',
-          borderRadius: 'var(--radius)', padding: '14px',
-          marginBottom: 10,
-        }}>
-          <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
-            Garmin Today
-          </div>
-          <div style={{ display: 'flex', gap: 20 }}>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', fontFamily: "'Space Grotesk', sans-serif" }}>
-                {todayActivity.steps.toLocaleString()}
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--text3)' }}>steps</div>
-            </div>
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', fontFamily: "'Space Grotesk', sans-serif" }}>
-                {todayActivity.active_calories}
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--text3)' }}>active kcal</div>
-            </div>
-            {todayActivity.resting_heart_rate && (
-              <div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', fontFamily: "'Space Grotesk', sans-serif" }}>
-                  {todayActivity.resting_heart_rate}
-                </div>
-                <div style={{ fontSize: 11, color: 'var(--text3)' }}>resting bpm</div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Recovery card */}
+      <RecoveryCard activity={todayActivity} onLogClick={() => setShowDailyModal(true)} />
+
+      <DailyInputModal open={showDailyModal} onClose={() => setShowDailyModal(false)} />
     </div>
   )
 }

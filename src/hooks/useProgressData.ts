@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/useAuthStore'
 import { toDateStr } from '@/lib/dateUtils'
-import type { WeightLog, Measurement, PersonalRecord, Activity } from '@/types/supabase'
+import type { WeightLog, Measurement, PersonalRecord, Activity, DailyActivity } from '@/types/supabase'
 
 export interface HealthRow {
   activity_date: string
@@ -203,3 +203,32 @@ export function useWorkoutHistory(days = 84) {
     },
   })
 }
+
+export function useLogManualActivity() {
+  const qc = useQueryClient()
+  const user = useAuthStore((s) => s.user)
+  return useMutation({
+    mutationFn: async (payload: {
+      activity_date: string
+      activity_type: string
+      name?: string
+      duration_seconds?: number
+      distance_meters?: number
+      avg_heart_rate?: number
+      calories?: number
+    }) => {
+      const { error } = await supabase.from('activities').insert({
+        user_id: user!.id,
+        garmin_activity_id: null,
+        is_manual: true,
+        synced_at: new Date().toISOString(),
+        ...payload,
+      })
+      if (error) throw error
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['activities'] }),
+  })
+}
+
+// Re-export DailyActivity type for consumers that need it
+export type { DailyActivity }

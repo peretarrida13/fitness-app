@@ -114,7 +114,7 @@ export function RunningTab() {
           No runs synced yet
         </div>
         <div style={{ fontSize: 13, color: 'var(--text3)', lineHeight: 1.6 }}>
-          Sync your Garmin on the Calendar page to pull your Garmin Coach runs.
+          Log activities manually on the Home screen or connect a fitness tracker to pull your runs.
         </div>
       </div>
     )

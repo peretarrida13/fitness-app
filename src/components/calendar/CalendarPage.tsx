@@ -1,10 +1,9 @@
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useCalendarStore } from '@/store/useCalendarStore'
 import { useAuthStore } from '@/store/useAuthStore'
+import { useNavigate } from 'react-router-dom'
 import {
   useWorkoutLogs, useLogWorkout, useDeleteWorkoutLog,
-  useDailyActivity, useGarminSync, useActivities,
+  useDailyActivity, useActivities,
 } from '@/hooks/useCalendarData'
 import { useHabits, useHabitLogsForWeek } from '@/hooks/useHabitData'
 import { useGoogleCalendarEvents } from '@/hooks/useGoogleCalendar'
@@ -18,8 +17,8 @@ import { CalendarDayCell } from './CalendarDayCell'
 export function CalendarPage() {
   const {
     weekOffset, getWeekStart, prevWeek, nextWeek, resetToToday,
-    googleAccessToken, garminConnected,
-    setGoogleToken, setGarminConnected,
+    googleAccessToken,
+    setGoogleToken,
   } = useCalendarStore()
   const { user } = useAuthStore()
   const navigate = useNavigate()
@@ -35,16 +34,6 @@ export function CalendarPage() {
   const { data: habitLogsMap } = useHabitLogsForWeek(weekStart)
   const logWorkout = useLogWorkout()
   const deleteLog = useDeleteWorkoutLog()
-  const garminSync = useGarminSync()
-
-  // Detect ?garmin=connected redirect
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('garmin') === 'connected') {
-      setGarminConnected(true)
-      window.history.replaceState({}, '', window.location.pathname)
-    }
-  }, [setGarminConnected])
 
   return (
     <div style={{ paddingBottom: 80 }}>
@@ -58,9 +47,6 @@ export function CalendarPage() {
 
       {user && (
         <CalendarConnectBar
-          garminConnected={garminConnected}
-          garminSyncing={garminSync.isPending}
-          onSyncGarmin={() => garminSync.mutate(toDateStr(weekStart))}
           googleConnected={!!googleAccessToken}
           onGoogleToken={(token) => setGoogleToken(token)}
           onGoogleDisconnect={() => setGoogleToken(null)}
@@ -109,7 +95,7 @@ export function CalendarPage() {
             border: '1px solid var(--edge)', borderRadius: 'var(--radius)',
             textAlign: 'center', fontSize: 13, color: 'var(--text3)',
           }}>
-            Sign in to log workouts, sync Garmin data, and connect Google Calendar.
+            Sign in to log workouts and connect Google Calendar.
           </div>
         )}
       </div>

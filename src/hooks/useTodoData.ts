@@ -25,9 +25,12 @@ export function useTodos() {
 
 export function useAddTodo() {
   const qc = useQueryClient()
+  const user = useAuthStore((s) => s.user)
   return useMutation({
     mutationFn: async (title: string) => {
-      const { error } = await supabase.from('todos').insert({ title, completed: false })
+      const { error } = await supabase
+        .from('todos')
+        .insert({ user_id: user!.id, title, completed: false })
       if (error) throw error
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: QK.all }),

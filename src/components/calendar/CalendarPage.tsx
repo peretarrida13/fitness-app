@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useCalendarStore } from '@/store/useCalendarStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import {
@@ -13,7 +14,6 @@ import { getWeekDays, toDateStr, getDayOfWeekIndex, isToday } from '@/lib/dateUt
 import { CalendarHeader } from './CalendarHeader'
 import { CalendarConnectBar } from './CalendarConnectBar'
 import { CalendarDayCell } from './CalendarDayCell'
-import { CalendarDayModal } from './CalendarDayModal'
 
 export function CalendarPage() {
   const {
@@ -22,6 +22,7 @@ export function CalendarPage() {
     setGoogleToken, setGarminConnected,
   } = useCalendarStore()
   const { user } = useAuthStore()
+  const navigate = useNavigate()
 
   const weekStart = getWeekStart()
   const weekDays = getWeekDays(weekStart)
@@ -35,8 +36,6 @@ export function CalendarPage() {
   const logWorkout = useLogWorkout()
   const deleteLog = useDeleteWorkoutLog()
   const garminSync = useGarminSync()
-
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
   // Detect ?garmin=connected redirect
   useEffect(() => {
@@ -99,7 +98,7 @@ export function CalendarPage() {
                 logWorkout.mutate({ logged_date: dateStr, gym_day_index: dayIdx })
               }
               onDeleteLog={() => deleteLog.mutate(dateStr)}
-              onOpenDetail={() => setSelectedDate(date)}
+              onOpenDetail={() => navigate(`/calendar/${dateStr}`)}
             />
           )
         })}
@@ -115,31 +114,6 @@ export function CalendarPage() {
         )}
       </div>
 
-      {selectedDate && (() => {
-        const selStr = toDateStr(selectedDate)
-        const selIdx = getDayOfWeekIndex(selectedDate)
-        return (
-          <CalendarDayModal
-            date={selectedDate}
-            gymDay={GYM_DAYS[selIdx]}
-            workoutLog={workoutLogs?.get(selStr) ?? null}
-            activity={activityMap?.get(selStr) ?? null}
-            runs={activitiesMap?.get(selStr) ?? []}
-            googleEvents={googleEvents?.get(selStr) ?? []}
-            habitsDone={habitLogsMap?.get(selStr)?.size ?? 0}
-            habitsTotal={habits.length}
-            onLogWorkout={() => {
-              logWorkout.mutate({ logged_date: selStr, gym_day_index: selIdx })
-              setSelectedDate(null)
-            }}
-            onDeleteLog={() => {
-              deleteLog.mutate(selStr)
-              setSelectedDate(null)
-            }}
-            onClose={() => setSelectedDate(null)}
-          />
-        )
-      })()}
     </div>
   )
 }

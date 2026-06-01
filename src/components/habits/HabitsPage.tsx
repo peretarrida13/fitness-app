@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react'
 import { useHabits, useHabitStreaks, useAddHabit } from '@/hooks/useHabitData'
 import { TodayTab } from './tabs/TodayTab'
 import { TasksTab } from './tabs/TasksTab'
-import { WeekTab } from './tabs/WeekTab'
+import { MonthTab } from './tabs/MonthTab'
 import type { HabitColor } from '@/types/supabase'
 
 export const HABIT_COLORS: { value: HabitColor; label: string }[] = [
@@ -14,7 +14,7 @@ export const HABIT_COLORS: { value: HabitColor; label: string }[] = [
   { value: '--text2',  label: 'Grey'  },
 ]
 
-type Tab = 'today' | 'tasks' | 'week'
+type Tab = 'today' | 'tasks' | 'month'
 
 export function HabitsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('today')
@@ -89,7 +89,7 @@ export function HabitsPage() {
 
         {/* Tab strip */}
         <div style={{ display: 'flex' }}>
-          {(['today', 'tasks', 'week'] as Tab[]).map((tab) => (
+          {(['today', 'tasks', 'month'] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -105,7 +105,7 @@ export function HabitsPage() {
                 transition: 'color 0.15s, border-color 0.15s',
               }}
             >
-              {tab === 'today' ? 'Today' : tab === 'tasks' ? 'Tasks' : 'This Week'}
+              {tab === 'today' ? 'Today' : tab === 'tasks' ? 'Tasks' : 'Month'}
             </button>
           ))}
         </div>
@@ -207,7 +207,7 @@ export function HabitsPage() {
       <div style={{ padding: '0 16px 96px' }}>
         {activeTab === 'today' && <TodayTab habits={habits} streaks={streaks} />}
         {activeTab === 'tasks' && <TasksTab />}
-        {activeTab === 'week' && <WeekTab habits={habits} />}
+        {activeTab === 'month' && <MonthTab habits={habits} />}
       </div>
     </div>
   )

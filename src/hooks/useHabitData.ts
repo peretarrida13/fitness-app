@@ -137,6 +137,33 @@ export function useDeleteHabit() {
   })
 }
 
+export function useHabitLogsForMonth(monthStart: Date) {
+  const user = useAuthStore((s) => s.user)
+  const start = toDateStr(monthStart)
+  const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0)
+  const end = toDateStr(monthEnd)
+
+  return useQuery({
+    queryKey: ['habit_logs', 'month', start] as const,
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('habit_logs')
+        .select('habit_id, logged_date')
+        .gte('logged_date', start)
+        .lte('logged_date', end)
+      if (error) throw error
+      const map = new Map<string, Set<string>>()
+      for (const row of data as Pick<HabitLog, 'habit_id' | 'logged_date'>[]) {
+        const set = map.get(row.logged_date) ?? new Set<string>()
+        set.add(row.habit_id)
+        map.set(row.logged_date, set)
+      }
+      return map
+    },
+  })
+}
+
 export function useToggleHabitLog() {
   const qc = useQueryClient()
   return useMutation({

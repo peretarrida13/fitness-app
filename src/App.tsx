@@ -8,6 +8,7 @@ import { ShoppingPage } from './components/shopping/ShoppingPage'
 import { TipsPage } from './components/tips/TipsPage'
 import { ProgressPage } from './components/progress/ProgressPage'
 import { CalendarPage } from './components/calendar/CalendarPage'
+import { CalendarDayPage } from './components/calendar/CalendarDayPage'
 import { HabitsPage } from './components/habits/HabitsPage'
 import { HomePage } from './components/home/HomePage'
 import { SettingsPage } from './components/settings/SettingsPage'
@@ -33,6 +34,7 @@ export default function App() {
                 <Route path="/shopping" element={<ShoppingPage />} />
                 <Route path="/tips" element={<TipsPage />} />
                 <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/calendar/:date" element={<CalendarDayPage />} />
                 <Route path="/habits" element={<HabitsPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
               </Route>

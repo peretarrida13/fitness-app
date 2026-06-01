@@ -102,9 +102,10 @@ export function useHabitStreaks() {
 
 export function useAddHabit() {
   const qc = useQueryClient()
+  const user = useAuthStore((s) => s.user)
   return useMutation({
     mutationFn: async (payload: { name: string; icon: string; color: HabitColor; sort_order: number }) => {
-      const { error } = await supabase.from('habits').insert(payload)
+      const { error } = await supabase.from('habits').insert({ ...payload, user_id: user!.id })
       if (error) throw error
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: QK.habits }),
@@ -166,6 +167,7 @@ export function useHabitLogsForMonth(monthStart: Date) {
 
 export function useToggleHabitLog() {
   const qc = useQueryClient()
+  const user = useAuthStore((s) => s.user)
   return useMutation({
     mutationFn: async ({
       habitId,
@@ -182,7 +184,7 @@ export function useToggleHabitLog() {
       } else {
         const { error } = await supabase
           .from('habit_logs')
-          .insert({ habit_id: habitId, logged_date: date })
+          .insert({ user_id: user!.id, habit_id: habitId, logged_date: date })
         if (error && error.code !== '23505') throw error
       }
     },

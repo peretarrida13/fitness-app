@@ -10,6 +10,28 @@ type TimerState = 'idle' | 'running' | 'paused' | 'done'
 
 const CIRCUMFERENCE = 213.6 // 2 * π * 34
 
+function playDoneSound() {
+  try {
+    const ctx = new AudioContext()
+    const beep = (freq: number, start: number, dur: number) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.value = freq
+      gain.gain.setValueAtTime(0.25, ctx.currentTime + start)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + dur)
+      osc.start(ctx.currentTime + start)
+      osc.stop(ctx.currentTime + start + dur)
+    }
+    beep(880, 0, 0.15)
+    beep(1320, 0.2, 0.3)
+  } catch {
+    // AudioContext unavailable
+  }
+}
+
 export function StretchCard({ stretch, number }: Props) {
   const [open, setOpen] = useState(false)
   const [timerState, setTimerState] = useState<TimerState>('idle')
@@ -34,6 +56,7 @@ export function StretchCard({ stretch, number }: Props) {
         if (prev <= 1) {
           clearInterval(intervalRef.current!)
           setTimerState('done')
+          playDoneSound()
           navigator.vibrate?.([200, 100, 200])
           return 0
         }
@@ -49,7 +72,7 @@ export function StretchCard({ stretch, number }: Props) {
 
   function handleTimerButton(e: React.MouseEvent) {
     e.stopPropagation()
-    if (timerState === 'idle' || timerState === 'paused') startTimer()
+    if (timerState === 'idle' || timerState === 'paused' || timerState === 'done') startTimer()
     else if (timerState === 'running') pauseTimer()
   }
 

@@ -16,6 +16,7 @@ export function CalendarHeader({ weekStart, onPrev, onNext, onToday, weekOffset 
       background: 'rgba(10,10,15,0.92)', backdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--border)',
       padding: '14px 16px 12px',
+      paddingTop: 'max(14px, env(safe-area-inset-top, 0px))',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>

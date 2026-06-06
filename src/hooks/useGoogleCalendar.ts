@@ -36,7 +36,7 @@ export function useGoogleCalendarEvents(weekStart: Date, accessToken: string | n
   timeMax.setHours(23, 59, 59, 999)
 
   return useQuery({
-    queryKey: ['google_calendar', toDateStr(weekStart)],
+    queryKey: ['google_calendar', toDateStr(weekStart), accessToken ?? ''],
     enabled: !!accessToken,
     queryFn: async () => {
       const params = new URLSearchParams({

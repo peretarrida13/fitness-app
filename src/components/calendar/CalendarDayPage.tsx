@@ -79,10 +79,11 @@ export function CalendarDayPage() {
         WebkitBackdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--edge)',
         padding: '14px 16px 12px',
+        paddingTop: 'max(14px, env(safe-area-inset-top, 0px))',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button
-            onClick={() => navigate('/calendar')}
+            onClick={() => navigate(-1)}
             style={{
               width: 32, height: 32, borderRadius: '50%',
               background: 'var(--card)', border: '1px solid var(--edge)',

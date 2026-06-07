@@ -13,6 +13,9 @@ import { useSettingsStore } from '@/store/useSettingsStore'
 import { useWaterStore } from '@/store/useWaterStore'
 import { RecoveryCard } from '@/components/home/RecoveryCard'
 import { DailyInputModal } from '@/components/home/DailyInputModal'
+import { WhoopCard } from '@/components/home/WhoopCard'
+import { WhoopModal } from '@/components/home/WhoopModal'
+import { useWhoopData } from '@/hooks/useWhoopData'
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -24,6 +27,8 @@ export function HomePage() {
   const { weightGoalKg, calorieTarget, proteinTarget, waterGoalMl } = useSettingsStore()
   const waterStore = useWaterStore()
   const [showDailyModal, setShowDailyModal] = useState(false)
+  const [showWhoopModal, setShowWhoopModal] = useState(false)
+  const { data: whoopData } = useWhoopData()
 
   const today = new Date()
   const todayStr = toDateStr(today)
@@ -350,10 +355,14 @@ export function HomePage() {
         </div>
       )}
 
+      {/* Whoop card */}
+      <WhoopCard data={whoopData} onOpenModal={() => setShowWhoopModal(true)} />
+
       {/* Recovery card */}
       <RecoveryCard activity={todayActivity} onLogClick={() => setShowDailyModal(true)} />
 
       <DailyInputModal open={showDailyModal} onClose={() => setShowDailyModal(false)} />
+      <WhoopModal open={showWhoopModal} onClose={() => setShowWhoopModal(false)} data={whoopData} />
     </div>
   )
 }

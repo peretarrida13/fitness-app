@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import type { DailyActivity } from '@/types/supabase'
 
 interface Props {
@@ -127,6 +128,7 @@ function MetricChip({ label, value, unit, color }: {
 }
 
 export function RecoveryCard({ activity, onLogClick }: Props) {
+  const navigate = useNavigate()
   const score = computeRecoveryScore(activity)
 
   const scoreColor = score === null
@@ -206,23 +208,37 @@ export function RecoveryCard({ activity, onLogClick }: Props) {
         )}
       </div>
 
-      {/* Log button */}
-      <button
-        onClick={onLogClick}
-        style={{
-          width: '100%', marginTop: 12,
-          padding: '8px 0',
-          background: score !== null ? 'var(--bg2)' : 'var(--accentbg)',
-          border: `1px solid ${score !== null ? 'var(--edge)' : 'var(--accentbd)'}`,
-          borderRadius: 'var(--radius-sm)',
-          fontSize: 12, fontWeight: 600,
-          color: score !== null ? 'var(--text2)' : 'var(--accent)',
-          cursor: 'pointer',
-          transition: 'opacity 0.15s',
-        }}
-      >
-        {score !== null ? 'Update today\'s stats' : 'Log today\'s stats'}
-      </button>
+      {/* Buttons row */}
+      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+        <button
+          onClick={onLogClick}
+          style={{
+            flex: 1, padding: '8px 0',
+            background: score !== null ? 'var(--bg2)' : 'var(--accentbg)',
+            border: `1px solid ${score !== null ? 'var(--edge)' : 'var(--accentbd)'}`,
+            borderRadius: 'var(--radius-sm)',
+            fontSize: 12, fontWeight: 600,
+            color: score !== null ? 'var(--text2)' : 'var(--accent)',
+            cursor: 'pointer',
+          }}
+        >
+          {score !== null ? 'Update stats' : 'Log stats'}
+        </button>
+        <button
+          onClick={() => navigate('/whoop')}
+          style={{
+            flex: 1, padding: '8px 0',
+            background: 'var(--bg2)',
+            border: '1px solid var(--edge)',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: 12, fontWeight: 600,
+            color: 'var(--accent)',
+            cursor: 'pointer',
+          }}
+        >
+          Open Whoop →
+        </button>
+      </div>
     </div>
   )
 }
